@@ -155,7 +155,7 @@ Spesifikasi export: `.glb` binary, Y-up, skala meter, low poly, texture baked. D
 | 1 City | ✅ | Jalan +Z (plane aspal) + gedung box placeholder seeded (kiri/kanan), trotoar, fog. Layout di `buildingLayout.ts`. |
 | 2 Player | ✅ | Rapier `<Physics>`, ground fixed, player capsule (RigidBody dynamic, rotasi dikunci), WASD+Shift relatif kamera, CameraRig follow (lerp). |
 | 3 Dribble | ✅ | Bola sphere, mode dribble (kinematicPosition) lerp di depan player + rolling. Mode shot (dynamic) sudah di-wire via `isShot`. |
-| 4 Goal Zone | ⬜ | |
+| 4 Goal Zone | ✅ | Sensor cuboid di +Z (`goalConfig.ts`), set `inGoalZone`/`canShoot` via userData player. Prompt "Press Space to Shoot" = overlay DOM di `src/ui/ShootPrompt.tsx`. |
 | 5 Shooting | ⬜ | |
 | 6 Goal Detection | ⬜ | |
 | 7 Assets | ⬜ | |
@@ -169,6 +169,7 @@ Spesifikasi export: `.glb` binary, Y-up, skala meter, low poly, texture baked. D
 
 > Catat keputusan teknis/konvensi signifikan beserta tanggal. Terbaru di atas.
 
+- 2026-06-19 — Fase 4 selesai. Posisi gawang & zona dipusatkan di `src/components/Goal/goalConfig.ts` (GOAL_LINE_Z=196, GOAL_ZONE centerZ=184) supaya konsisten dengan Fase 6. Sensor pakai `onIntersectionEnter/Exit` + filter `other.rigidBody.userData.type==='player'`. Goal zone juga set `canShoot` (dipakai Fase 5).
 - 2026-06-19 — Collision groups (`src/physics/collisionGroups.ts`): player & bola TIDAK saling tabrak (fix bug player terlempar ke atas saat bola kinematic menembus kapsul ketika belok/putar balik). Keduanya tetap tabrak WORLD (ground). Grup: WORLD=0, PLAYER=1, BALL=2, GOAL=3. Sensor goal melihat PLAYER & BALL. Pasang `collisionGroups` di tiap collider.
 - 2026-06-19 — Fase 3 selesai. Transisi kinematic↔dynamic bola diputuskan: satu `<RigidBody>` dengan `type` di-switch dari `isShot` store (`kinematicPosition` saat dribble → `dynamic` saat shot). Saat dribble, posisi diset manual via `setNextKinematicTranslation/Rotation` (lerp ke target = playerPos + playerForward × DRIBBLE_DISTANCE). Bola pakai `ccd` (anti tunneling saat ditendang kencang nanti). Player publish `playerForward` (unit XZ) ke store untuk dribble.
 - 2026-06-19 — Fase 2 selesai. Stack fisika: `@react-three/rapier@1.5` (v2 butuh R3F 9/React 19 → tidak dipakai). State: `zustand@5` di `src/hooks/useGameStore.ts`. Keputusan: (a) `playerPosition` = Vector3 stabil di store, dimutasi in-place tiap frame (non-reaktif, dibaca kamera/bola/UI) — bukan via setState. (b) Gerak relatif arah kamera; player = RigidBody dynamic dengan `enabledRotations={[false,false,false]}`, gerak via `setLinvel` di XZ (Y dibiarkan untuk gravitasi). (c) Visual capsule menghadap arah gerak (rotasi child group, bukan body). (d) Input keyboard via ref (`useKeyboardControls`), tidak memicu re-render.

@@ -4,6 +4,7 @@ import { COLLISION } from '../physics/collisionGroups'
 import City from '../components/City/City'
 import Player from '../components/Player/Player'
 import Ball from '../components/Ball/Ball'
+import GoalZone from '../components/Goal/GoalZone'
 import CameraRig from '../systems/CameraRig'
 
 /**
@@ -57,6 +58,9 @@ export default function MainScene() {
 
         {/* Kota: jalan + gedung (visual saja untuk sekarang). */}
         <City />
+
+        {/* Area goal (sensor pemicu prompt tembak). */}
+        <GoalZone />
 
         {/* Player + bola + kamera follow. */}
         <Player />
