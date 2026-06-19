@@ -42,8 +42,8 @@ export default function Player() {
     camera.getWorldDirection(forwardDir.current)
     forwardDir.current.y = 0
     forwardDir.current.normalize()
-    // right = up × forward (sehingga D = kanan layar).
-    rightDir.current.crossVectors(up.current, forwardDir.current).normalize()
+    // right = forward × up (sehingga D = kanan layar).
+    rightDir.current.crossVectors(forwardDir.current, up.current).normalize()
 
     const fwd = (forward ? 1 : 0) - (backward ? 1 : 0)
     const str = (right ? 1 : 0) - (left ? 1 : 0)
