@@ -1,5 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { Physics, RigidBody, CuboidCollider } from '@react-three/rapier'
+import { COLLISION } from '../physics/collisionGroups'
 import City from '../components/City/City'
 import Player from '../components/Player/Player'
 import Ball from '../components/Ball/Ball'
@@ -39,7 +40,11 @@ export default function MainScene() {
       <Physics gravity={[0, -9.81, 0]}>
         {/* Ground: RigidBody fixed + cuboid collider tipis. */}
         <RigidBody type="fixed" colliders={false}>
-          <CuboidCollider args={[100, 0.5, 160]} position={[0, -0.5, 100]} />
+          <CuboidCollider
+            args={[100, 0.5, 160]}
+            position={[0, -0.5, 100]}
+            collisionGroups={COLLISION.world}
+          />
           <mesh
             rotation={[-Math.PI / 2, 0, 0]}
             position={[0, 0, 100]}

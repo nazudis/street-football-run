@@ -4,6 +4,7 @@ import { RigidBody, CapsuleCollider, type RapierRigidBody } from '@react-three/r
 import * as THREE from 'three'
 import { useKeyboardControls } from '../../hooks/useKeyboardControls'
 import { useGameStore } from '../../hooks/useGameStore'
+import { COLLISION } from '../../physics/collisionGroups'
 
 const WALK_SPEED = 4
 const RUN_SPEED = 8
@@ -98,7 +99,7 @@ export default function Player() {
       canSleep={false}
       userData={{ type: 'player' }}
     >
-      <CapsuleCollider args={[HALF_HEIGHT, RADIUS]} />
+      <CapsuleCollider args={[HALF_HEIGHT, RADIUS]} collisionGroups={COLLISION.player} />
       <group ref={visual}>
         {/* Badan capsule placeholder. */}
         <mesh castShadow>

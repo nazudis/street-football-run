@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { RigidBody, BallCollider, type RapierRigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
 import { useGameStore } from '../../hooks/useGameStore'
+import { COLLISION } from '../../physics/collisionGroups'
 import {
   BALL_RADIUS,
   DRIBBLE_SMOOTH,
@@ -72,7 +73,7 @@ export default function Ball() {
       ccd
       userData={{ type: 'ball' }}
     >
-      <BallCollider args={[BALL_RADIUS]} />
+      <BallCollider args={[BALL_RADIUS]} collisionGroups={COLLISION.ball} />
       <mesh castShadow receiveShadow>
         <sphereGeometry args={[BALL_RADIUS, 24, 24]} />
         <meshStandardMaterial color="#f5f5f5" roughness={0.5} />
