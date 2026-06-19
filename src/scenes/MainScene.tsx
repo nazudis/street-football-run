@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { Physics, RigidBody, CuboidCollider } from '@react-three/rapier'
 import City from '../components/City/City'
 import Player from '../components/Player/Player'
+import Ball from '../components/Ball/Ball'
 import CameraRig from '../systems/CameraRig'
 
 /**
@@ -52,8 +53,9 @@ export default function MainScene() {
         {/* Kota: jalan + gedung (visual saja untuk sekarang). */}
         <City />
 
-        {/* Player + kamera follow. */}
+        {/* Player + bola + kamera follow. */}
         <Player />
+        <Ball />
         <CameraRig />
       </Physics>
     </Canvas>

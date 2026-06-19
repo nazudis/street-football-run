@@ -27,6 +27,7 @@ export default function Player() {
   const input = useKeyboardControls()
   const camera = useThree((s) => s.camera)
   const playerPosition = useGameStore((s) => s.playerPosition)
+  const playerForward = useGameStore((s) => s.playerForward)
 
   // Vektor kerja (dialokasi sekali, dipakai ulang tiap frame).
   const forwardDir = useRef(new THREE.Vector3())
@@ -80,6 +81,12 @@ export default function Player() {
     // Publikasikan posisi player ke store (live, non-reaktif).
     const t = body.current.translation()
     playerPosition.set(t.x, t.y, t.z)
+
+    // Publikasikan arah hadap (dari rotasi visual) untuk dribble bola.
+    if (visual.current) {
+      const a = visual.current.rotation.y
+      playerForward.set(Math.sin(a), 0, Math.cos(a))
+    }
   })
 
   return (

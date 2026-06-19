@@ -20,6 +20,8 @@ interface GameStore {
 
   /** Posisi player live (mutasi in-place, jangan di-set ulang). */
   playerPosition: THREE.Vector3
+  /** Arah hadap player live (unit vector di XZ, mutasi in-place). */
+  playerForward: THREE.Vector3
 
   setInGoalZone: (v: boolean) => void
   setCanShoot: (v: boolean) => void
@@ -40,6 +42,7 @@ const initialFlags = {
 export const useGameStore = create<GameStore>((set) => ({
   ...initialFlags,
   playerPosition: new THREE.Vector3(0, 0, 0),
+  playerForward: new THREE.Vector3(0, 0, 1),
 
   setInGoalZone: (v) => set({ inGoalZone: v }),
   setCanShoot: (v) => set({ canShoot: v }),

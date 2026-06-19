@@ -154,7 +154,7 @@ Spesifikasi export: `.glb` binary, Y-up, skala meter, low poly, texture baked. D
 | 0 Setup | ✅ | Vite+R3F+drei, MainScene (lantai, lighting, OrbitControls). `npm run dev` OK. |
 | 1 City | ✅ | Jalan +Z (plane aspal) + gedung box placeholder seeded (kiri/kanan), trotoar, fog. Layout di `buildingLayout.ts`. |
 | 2 Player | ✅ | Rapier `<Physics>`, ground fixed, player capsule (RigidBody dynamic, rotasi dikunci), WASD+Shift relatif kamera, CameraRig follow (lerp). |
-| 3 Dribble | ⬜ | |
+| 3 Dribble | ✅ | Bola sphere, mode dribble (kinematicPosition) lerp di depan player + rolling. Mode shot (dynamic) sudah di-wire via `isShot`. |
 | 4 Goal Zone | ⬜ | |
 | 5 Shooting | ⬜ | |
 | 6 Goal Detection | ⬜ | |
@@ -169,6 +169,7 @@ Spesifikasi export: `.glb` binary, Y-up, skala meter, low poly, texture baked. D
 
 > Catat keputusan teknis/konvensi signifikan beserta tanggal. Terbaru di atas.
 
+- 2026-06-19 — Fase 3 selesai. Transisi kinematic↔dynamic bola diputuskan: satu `<RigidBody>` dengan `type` di-switch dari `isShot` store (`kinematicPosition` saat dribble → `dynamic` saat shot). Saat dribble, posisi diset manual via `setNextKinematicTranslation/Rotation` (lerp ke target = playerPos + playerForward × DRIBBLE_DISTANCE). Bola pakai `ccd` (anti tunneling saat ditendang kencang nanti). Player publish `playerForward` (unit XZ) ke store untuk dribble.
 - 2026-06-19 — Fase 2 selesai. Stack fisika: `@react-three/rapier@1.5` (v2 butuh R3F 9/React 19 → tidak dipakai). State: `zustand@5` di `src/hooks/useGameStore.ts`. Keputusan: (a) `playerPosition` = Vector3 stabil di store, dimutasi in-place tiap frame (non-reaktif, dibaca kamera/bola/UI) — bukan via setState. (b) Gerak relatif arah kamera; player = RigidBody dynamic dengan `enabledRotations={[false,false,false]}`, gerak via `setLinvel` di XZ (Y dibiarkan untuk gravitasi). (c) Visual capsule menghadap arah gerak (rotasi child group, bukan body). (d) Input keyboard via ref (`useKeyboardControls`), tidak memicu re-render.
 - 2026-06-19 — Vite di-upgrade ke 8.0.5 (berbasis Rolldown/oxc). Plugin React wajib `@vitejs/plugin-react@^6` (v4 hanya support Vite ≤7 → memunculkan warning oxc/`Invalid key "jsx"`). Jangan turunkan ke v4 selama Vite 8.
 - 2026-06-19 — Fase 0 selesai. Scaffold manual (bukan `npm create vite`) supaya tidak menimpa AGENTS.md/prd/. Stack pinned: three 0.169, @react-three/fiber 8, @react-three/drei 9, React 18. TS project references (tsconfig.app/node) + strict.
