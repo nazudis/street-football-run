@@ -156,7 +156,7 @@ Spesifikasi export: `.glb` binary, Y-up, skala meter, low poly, texture baked. D
 | 2 Player | ✅ | Rapier `<Physics>`, ground fixed, player capsule (RigidBody dynamic, rotasi dikunci), WASD+Shift relatif kamera, CameraRig follow (lerp). |
 | 3 Dribble | ✅ | Bola sphere, mode dribble (kinematicPosition) lerp di depan player + rolling. Mode shot (dynamic) sudah di-wire via `isShot`. |
 | 4 Goal Zone | ✅ | Sensor cuboid di +Z (`goalConfig.ts`), set `inGoalZone`/`canShoot` via userData player. Prompt "Press Space to Shoot" = overlay DOM di `src/ui/ShootPrompt.tsx`. |
-| 5 Shooting | ⬜ | |
+| 5 Shooting | ✅ | Space (saat `canShoot`) → `shoot()` set `isShot`, Ball switch ke dynamic lalu `applyImpulse` ke arah gawang (lob ringan). Rangka gawang placeholder (tiang+mistar) sebagai target. |
 | 6 Goal Detection | ⬜ | |
 | 7 Assets | ⬜ | |
 | 8 Animation | ⬜ | |
@@ -169,6 +169,7 @@ Spesifikasi export: `.glb` binary, Y-up, skala meter, low poly, texture baked. D
 
 > Catat keputusan teknis/konvensi signifikan beserta tanggal. Terbaru di atas.
 
+- 2026-06-19 — Fase 5 selesai. Tendang: Space → `shoot()` (guard `canShoot && !isShot`) set `isShot`. Ball menunggu Rapier benar-benar memindah body ke `dynamic` (`bodyType()===0`) lewat fase `idle→pending→done` baru `applyImpulse`. Impulse = kecepatan target × `mass()` (mass-independent, predictable). Arah tembak ke mulut gawang (x=0, z=GOAL_LINE_Z) + lob `SHOOT_VSPEED`. Bola: `restitution 0.45`, `friction 0.6`. Rangka gawang placeholder collider grup WORLD.
 - 2026-06-19 — Fase 4 selesai. Posisi gawang & zona dipusatkan di `src/components/Goal/goalConfig.ts` (GOAL_LINE_Z=196, GOAL_ZONE centerZ=184) supaya konsisten dengan Fase 6. Sensor pakai `onIntersectionEnter/Exit` + filter `other.rigidBody.userData.type==='player'`. Goal zone juga set `canShoot` (dipakai Fase 5).
 - 2026-06-19 — Collision groups (`src/physics/collisionGroups.ts`): player & bola TIDAK saling tabrak (fix bug player terlempar ke atas saat bola kinematic menembus kapsul ketika belok/putar balik). Keduanya tetap tabrak WORLD (ground). Grup: WORLD=0, PLAYER=1, BALL=2, GOAL=3. Sensor goal melihat PLAYER & BALL. Pasang `collisionGroups` di tiap collider.
 - 2026-06-19 — Fase 3 selesai. Transisi kinematic↔dynamic bola diputuskan: satu `<RigidBody>` dengan `type` di-switch dari `isShot` store (`kinematicPosition` saat dribble → `dynamic` saat shot). Saat dribble, posisi diset manual via `setNextKinematicTranslation/Rotation` (lerp ke target = playerPos + playerForward × DRIBBLE_DISTANCE). Bola pakai `ccd` (anti tunneling saat ditendang kencang nanti). Player publish `playerForward` (unit XZ) ke store untuk dribble.

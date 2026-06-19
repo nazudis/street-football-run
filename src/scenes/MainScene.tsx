@@ -5,6 +5,7 @@ import City from '../components/City/City'
 import Player from '../components/Player/Player'
 import Ball from '../components/Ball/Ball'
 import GoalZone from '../components/Goal/GoalZone'
+import Goal from '../components/Goal/Goal'
 import CameraRig from '../systems/CameraRig'
 
 /**
@@ -59,8 +60,9 @@ export default function MainScene() {
         {/* Kota: jalan + gedung (visual saja untuk sekarang). */}
         <City />
 
-        {/* Area goal (sensor pemicu prompt tembak). */}
+        {/* Area goal (sensor pemicu prompt tembak) + rangka gawang. */}
         <GoalZone />
+        <Goal />
 
         {/* Player + bola + kamera follow. */}
         <Player />

@@ -28,6 +28,8 @@ interface GameStore {
   setIsShot: (v: boolean) => void
   setIsGoal: (v: boolean) => void
   setGameState: (s: GameState) => void
+  /** Tembak: hanya jika sedang `canShoot` & belum `isShot`. */
+  shoot: () => void
   reset: () => void
 }
 
@@ -49,6 +51,11 @@ export const useGameStore = create<GameStore>((set) => ({
   setIsShot: (v) => set({ isShot: v }),
   setIsGoal: (v) => set({ isGoal: v }),
   setGameState: (s) => set({ gameState: s }),
+
+  shoot: () =>
+    set((s) =>
+      s.canShoot && !s.isShot ? { isShot: true, canShoot: false } : {},
+    ),
 
   // Reset flag saja; playerPosition di-reset oleh Player saat respawn.
   reset: () => set({ ...initialFlags }),

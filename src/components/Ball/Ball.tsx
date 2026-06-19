@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RigidBody, BallCollider, type RapierRigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
@@ -10,6 +10,10 @@ import {
   computeDribbleTarget,
   applyRolling,
 } from '../../systems/DribbleSystem'
+import { computeShotVelocity } from '../../systems/ShootSystem'
+
+// Rapier RigidBodyType.Dynamic === 0.
+const DYNAMIC = 0
 
 /**
  * Ball — bola dengan 2 mode (lihat AGENTS.md #4):
@@ -32,6 +36,10 @@ export default function Ball() {
   const pos = useRef(new THREE.Vector3(...SPAWN))
   const quat = useRef(new THREE.Quaternion())
 
+  // Status pemberian impulse tendangan: 'idle' → 'pending' (saat isShot) → 'done'.
+  const shotPhase = useRef<'idle' | 'pending' | 'done'>('idle')
+  const shotVel = useRef(new THREE.Vector3())
+
   // Vektor kerja.
   const target = useRef(new THREE.Vector3())
   const prevPos = useRef(new THREE.Vector3(...SPAWN))
@@ -40,8 +48,33 @@ export default function Ball() {
   const rollQuat = useRef(new THREE.Quaternion())
   const up = useRef(new THREE.Vector3(0, 1, 0))
 
+  // Tandai perlu menendang saat isShot menyala.
+  useEffect(() => {
+    if (isShot && shotPhase.current === 'idle') shotPhase.current = 'pending'
+  }, [isShot])
+
   useFrame((_, delta) => {
-    if (!body.current || isShot) return // mode shot → fisika Rapier yang pegang
+    if (!body.current) return
+
+    if (isShot) {
+      // Beri impulse sekali, setelah Rapier benar-benar mengubah body ke dynamic.
+      if (shotPhase.current === 'pending' && body.current.bodyType() === DYNAMIC) {
+        const t = body.current.translation()
+        computeShotVelocity(t, shotVel.current)
+        const mass = body.current.mass() || 1
+        body.current.wakeUp()
+        body.current.applyImpulse(
+          {
+            x: shotVel.current.x * mass,
+            y: shotVel.current.y * mass,
+            z: shotVel.current.z * mass,
+          },
+          true,
+        )
+        shotPhase.current = 'done'
+      }
+      return // mode shot → fisika Rapier yang pegang
+    }
 
     // Target di depan player, lalu lerp (smoothing frame-rate independent).
     computeDribbleTarget(playerPosition, playerForward, target.current)
@@ -73,7 +106,12 @@ export default function Ball() {
       ccd
       userData={{ type: 'ball' }}
     >
-      <BallCollider args={[BALL_RADIUS]} collisionGroups={COLLISION.ball} />
+      <BallCollider
+        args={[BALL_RADIUS]}
+        collisionGroups={COLLISION.ball}
+        restitution={0.45}
+        friction={0.6}
+      />
       <mesh castShadow receiveShadow>
         <sphereGeometry args={[BALL_RADIUS, 24, 24]} />
         <meshStandardMaterial color="#f5f5f5" roughness={0.5} />
