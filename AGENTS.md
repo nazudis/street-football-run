@@ -169,4 +169,5 @@ Spesifikasi export: `.glb` binary, Y-up, skala meter, low poly, texture baked. D
 
 > Catat keputusan teknis/konvensi signifikan beserta tanggal. Terbaru di atas.
 
+- 2026-06-19 — Vite di-upgrade ke 8.0.5 (berbasis Rolldown/oxc). Plugin React wajib `@vitejs/plugin-react@^6` (v4 hanya support Vite ≤7 → memunculkan warning oxc/`Invalid key "jsx"`). Jangan turunkan ke v4 selama Vite 8.
 - 2026-06-19 — Fase 0 selesai. Scaffold manual (bukan `npm create vite`) supaya tidak menimpa AGENTS.md/prd/. Stack pinned: three 0.169, @react-three/fiber 8, @react-three/drei 9, React 18. TS project references (tsconfig.app/node) + strict.
