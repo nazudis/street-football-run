@@ -152,7 +152,7 @@ Spesifikasi export: `.glb` binary, Y-up, skala meter, low poly, texture baked. D
 | Fase | Status | Catatan |
 |------|--------|---------|
 | 0 Setup | ✅ | Vite+R3F+drei, MainScene (lantai, lighting, OrbitControls). `npm run dev` OK. |
-| 1 City | ⬜ | |
+| 1 City | ✅ | Jalan +Z (plane aspal) + gedung box placeholder seeded (kiri/kanan), trotoar, fog. Layout di `buildingLayout.ts`. |
 | 2 Player | ⬜ | |
 | 3 Dribble | ⬜ | |
 | 4 Goal Zone | ⬜ | |
