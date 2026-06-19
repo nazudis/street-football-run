@@ -19,6 +19,7 @@ dist-ssr
 
 # Editor / IDE
 .idea
+.claude/launch.json
 .vscode/*
 !.vscode/extensions.json
 .DS_Store

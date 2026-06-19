@@ -1,17 +1,19 @@
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import { Physics, RigidBody, CuboidCollider } from '@react-three/rapier'
 import City from '../components/City/City'
+import Player from '../components/Player/Player'
+import CameraRig from '../systems/CameraRig'
 
 /**
- * MainScene — dunia 3D (Fase 1).
- * Ground dasar, pencahayaan, kota (jalan + gedung), kamera orbit.
+ * MainScene — dunia 3D (Fase 2).
+ * Physics (Rapier), ground fixed, kota, player + kamera follow.
  * Konvensi: arah lari = +Z.
  */
 export default function MainScene() {
   return (
     <Canvas
       shadows
-      camera={{ position: [16, 12, -8], fov: 50 }}
+      camera={{ position: [0, 6, -9], fov: 50 }}
       style={{ width: '100%', height: '100%' }}
     >
       <color attach="background" args={['#1a1a20']} />
@@ -33,17 +35,27 @@ export default function MainScene() {
         shadow-camera-far={120}
       />
 
-      {/* Ground dasar (tanah) di bawah jalan & gedung. */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 100]} receiveShadow>
-        <planeGeometry args={[200, 320]} />
-        <meshStandardMaterial color="#3a3f36" />
-      </mesh>
+      <Physics gravity={[0, -9.81, 0]}>
+        {/* Ground: RigidBody fixed + cuboid collider tipis. */}
+        <RigidBody type="fixed" colliders={false}>
+          <CuboidCollider args={[100, 0.5, 160]} position={[0, -0.5, 100]} />
+          <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[0, 0, 100]}
+            receiveShadow
+          >
+            <planeGeometry args={[200, 320]} />
+            <meshStandardMaterial color="#3a3f36" />
+          </mesh>
+        </RigidBody>
 
-      {/* Kota: jalan + gedung */}
-      <City />
+        {/* Kota: jalan + gedung (visual saja untuk sekarang). */}
+        <City />
 
-      {/* Kontrol kamera (sementara untuk inspeksi sampai ada follow-camera). */}
-      <OrbitControls makeDefault target={[0, 2, 24]} />
+        {/* Player + kamera follow. */}
+        <Player />
+        <CameraRig />
+      </Physics>
     </Canvas>
   )
 }
