@@ -38,6 +38,14 @@ export default function Player() {
 
   useFrame((_, delta) => {
     if (!body.current) return
+
+    // Freeze gerakan saat menang: rem horizontal, biarkan gravitasi.
+    if (useGameStore.getState().gameState === 'win') {
+      const v = body.current.linvel()
+      body.current.setLinvel({ x: 0, y: v.y, z: 0 }, true)
+      return
+    }
+
     const { forward, backward, left, right, sprint } = input.current
 
     // Arah relatif kamera, diproyeksikan ke bidang XZ.

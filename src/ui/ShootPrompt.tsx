@@ -6,7 +6,8 @@ import { useGameStore } from '../hooks/useGameStore'
  */
 export default function ShootPrompt() {
   const inGoalZone = useGameStore((s) => s.inGoalZone)
-  if (!inGoalZone) return null
+  const gameState = useGameStore((s) => s.gameState)
+  if (!inGoalZone || gameState === 'win') return null
 
   return (
     <div

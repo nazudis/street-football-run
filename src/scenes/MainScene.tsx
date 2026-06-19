@@ -1,11 +1,13 @@
 import { Canvas } from '@react-three/fiber'
 import { Physics, RigidBody, CuboidCollider } from '@react-three/rapier'
 import { COLLISION } from '../physics/collisionGroups'
+import { useGameStore } from '../hooks/useGameStore'
 import City from '../components/City/City'
 import Player from '../components/Player/Player'
 import Ball from '../components/Ball/Ball'
 import GoalZone from '../components/Goal/GoalZone'
 import Goal from '../components/Goal/Goal'
+import GoalNet from '../components/Goal/GoalNet'
 import CameraRig from '../systems/CameraRig'
 
 /**
@@ -14,6 +16,9 @@ import CameraRig from '../systems/CameraRig'
  * Konvensi: arah lari = +Z.
  */
 export default function MainScene() {
+  // Naik tiap reset → remount Player & Ball ke kondisi spawn.
+  const runId = useGameStore((s) => s.runId)
+
   return (
     <Canvas
       shadows
@@ -60,13 +65,14 @@ export default function MainScene() {
         {/* Kota: jalan + gedung (visual saja untuk sekarang). */}
         <City />
 
-        {/* Area goal (sensor pemicu prompt tembak) + rangka gawang. */}
+        {/* Area goal (sensor pemicu prompt tembak) + rangka gawang + jaring/sensor gol. */}
         <GoalZone />
         <Goal />
+        <GoalNet />
 
-        {/* Player + bola + kamera follow. */}
-        <Player />
-        <Ball />
+        {/* Player + bola (key=runId → remount bersih saat restart) + kamera follow. */}
+        <Player key={`player-${runId}`} />
+        <Ball key={`ball-${runId}`} />
         <CameraRig />
       </Physics>
     </Canvas>

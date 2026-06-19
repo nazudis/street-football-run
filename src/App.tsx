@@ -1,5 +1,6 @@
 import MainScene from './scenes/MainScene'
 import ShootPrompt from './ui/ShootPrompt'
+import WinScreen from './ui/WinScreen'
 import { useShootControls } from './systems/ShootSystem'
 
 export default function App() {
@@ -11,6 +12,7 @@ export default function App() {
       <MainScene />
       {/* Overlay UI di luar Canvas (konvensi #6). */}
       <ShootPrompt />
+      <WinScreen />
     </>
   )
 }

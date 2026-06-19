@@ -22,6 +22,8 @@ interface GameStore {
   playerPosition: THREE.Vector3
   /** Arah hadap player live (unit vector di XZ, mutasi in-place). */
   playerForward: THREE.Vector3
+  /** Naik tiap reset; dipakai sebagai React key Player/Ball untuk remount bersih. */
+  runId: number
 
   setInGoalZone: (v: boolean) => void
   setCanShoot: (v: boolean) => void
@@ -45,6 +47,7 @@ export const useGameStore = create<GameStore>((set) => ({
   ...initialFlags,
   playerPosition: new THREE.Vector3(0, 0, 0),
   playerForward: new THREE.Vector3(0, 0, 1),
+  runId: 0,
 
   setInGoalZone: (v) => set({ inGoalZone: v }),
   setCanShoot: (v) => set({ canShoot: v }),
@@ -57,6 +60,6 @@ export const useGameStore = create<GameStore>((set) => ({
       s.canShoot && !s.isShot ? { isShot: true, canShoot: false } : {},
     ),
 
-  // Reset flag saja; playerPosition di-reset oleh Player saat respawn.
-  reset: () => set({ ...initialFlags }),
+  // Reset flag + naikkan runId → Player & Ball remount fresh ke spawn.
+  reset: () => set((s) => ({ ...initialFlags, runId: s.runId + 1 })),
 }))
