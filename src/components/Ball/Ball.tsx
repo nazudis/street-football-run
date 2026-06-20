@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { RigidBody, BallCollider, type RapierRigidBody } from '@react-three/rapier'
 import * as THREE from 'three'
@@ -12,7 +12,7 @@ import {
   computeDribbleTarget,
   applyRolling,
 } from '../../systems/DribbleSystem'
-import { computeShotVelocity } from '../../systems/ShootSystem'
+import { computeShotVelocity, KICK_CONTACT_DELAY } from '../../systems/ShootSystem'
 
 // Rapier RigidBodyType.Dynamic === 0.
 const DYNAMIC = 0
@@ -34,12 +34,16 @@ export default function Ball() {
   const playerPosition = useGameStore((s) => s.playerPosition)
   const playerForward = useGameStore((s) => s.playerForward)
 
+  // `released` = bola benar-benar dilepas (setelah momen kontak kaki).
+  // Bola tetap menempel di kaki (kinematic) selama wind-up animasi tendang.
+  const [released, setReleased] = useState(false)
+
   // State posisi/rotasi bola (untuk mode kinematic).
   const pos = useRef(new THREE.Vector3(...SPAWN))
   const quat = useRef(new THREE.Quaternion())
 
-  // Status pemberian impulse tendangan: 'idle' → 'pending' (saat isShot) → 'done'.
-  const shotPhase = useRef<'idle' | 'pending' | 'done'>('idle')
+  // Impulse tendangan sudah diberikan?
+  const impulseApplied = useRef(false)
   const shotVel = useRef(new THREE.Vector3())
 
   // Vektor kerja.
@@ -50,17 +54,22 @@ export default function Ball() {
   const rollQuat = useRef(new THREE.Quaternion())
   const up = useRef(new THREE.Vector3(0, 1, 0))
 
-  // Tandai perlu menendang saat isShot menyala.
+  // Saat menembak: tunda pelepasan bola sampai momen kontak kaki (animasi).
   useEffect(() => {
-    if (isShot && shotPhase.current === 'idle') shotPhase.current = 'pending'
+    if (!isShot) return
+    const id = window.setTimeout(
+      () => setReleased(true),
+      KICK_CONTACT_DELAY * 1000,
+    )
+    return () => window.clearTimeout(id)
   }, [isShot])
 
   useFrame((_, delta) => {
     if (!body.current) return
 
-    if (isShot) {
+    if (released) {
       // Beri impulse sekali, setelah Rapier benar-benar mengubah body ke dynamic.
-      if (shotPhase.current === 'pending' && body.current.bodyType() === DYNAMIC) {
+      if (!impulseApplied.current && body.current.bodyType() === DYNAMIC) {
         const t = body.current.translation()
         computeShotVelocity(t, shotVel.current)
         const mass = body.current.mass() || 1
@@ -73,11 +82,12 @@ export default function Ball() {
           },
           true,
         )
-        shotPhase.current = 'done'
+        impulseApplied.current = true
       }
       return // mode shot → fisika Rapier yang pegang
     }
 
+    // Mode dribble — termasuk selama wind-up tendangan (bola menempel di kaki).
     // Target di depan player, lalu lerp (smoothing frame-rate independent).
     computeDribbleTarget(playerPosition, playerForward, target.current)
     const alpha = 1 - Math.exp(-DRIBBLE_SMOOTH * delta)
@@ -104,7 +114,7 @@ export default function Ball() {
       ref={body}
       position={SPAWN}
       colliders={false}
-      type={isShot ? 'dynamic' : 'kinematicPosition'}
+      type={released ? 'dynamic' : 'kinematicPosition'}
       ccd
       userData={{ type: 'ball' }}
     >

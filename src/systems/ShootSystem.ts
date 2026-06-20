@@ -15,6 +15,11 @@ import { GOAL_LINE_Z } from '../components/Goal/goalConfig'
 export const SHOOT_HSPEED = 18
 /** Komponen vertikal (lob ringan, m/s). */
 export const SHOOT_VSPEED = 4
+/**
+ * Jeda dari mulai animasi tendang sampai bola benar-benar dilepas (detik) —
+ * disetel agar pas dengan momen kaki menyentuh bola di clip Kick.
+ */
+export const KICK_CONTACT_DELAY = 0.32
 
 /**
  * Hitung kecepatan target bola saat ditendang: arah horizontal menuju mulut
