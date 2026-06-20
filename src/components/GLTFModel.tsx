@@ -20,6 +20,8 @@ interface GLTFModelProps {
   /** Ukuran target pada sumbu `fitAxis` (meter). Jika undefined, skala asli. */
   fitSize?: number
   fitAxis?: FitAxis
+  /** Mode "contain": skala uniform agar model muat di dalam kotak [x,y,z]. */
+  fitBox?: [number, number, number]
   anchor?: Anchor
   /** Koreksi arah hadap model (radian). */
   rotationY?: number
@@ -29,6 +31,7 @@ export default function GLTFModel({
   url,
   fitSize,
   fitAxis = 'height',
+  fitBox,
   anchor = 'bottom',
   rotationY = 0,
 }: GLTFModelProps) {
@@ -45,6 +48,7 @@ export default function GLTFModel({
       }
     })
 
+    clone.updateMatrixWorld(true)
     const box = new THREE.Box3().setFromObject(clone)
     const size = new THREE.Vector3()
     const center = new THREE.Vector3()
@@ -52,7 +56,14 @@ export default function GLTFModel({
     box.getCenter(center)
 
     let s = 1
-    if (fitSize) {
+    if (fitBox) {
+      // Contain: skala uniform terbesar yang tetap muat di dalam kotak.
+      const sx = size.x > 1e-6 ? fitBox[0] / size.x : Infinity
+      const sy = size.y > 1e-6 ? fitBox[1] / size.y : Infinity
+      const sz = size.z > 1e-6 ? fitBox[2] / size.z : Infinity
+      s = Math.min(sx, sy, sz)
+      if (!Number.isFinite(s)) s = 1
+    } else if (fitSize) {
       const dim =
         fitAxis === 'height'
           ? size.y
@@ -70,7 +81,7 @@ export default function GLTFModel({
     clone.position.y -= anchor === 'bottom' ? box.min.y : center.y
 
     return { object: clone, scale: s }
-  }, [scene, fitSize, fitAxis, anchor])
+  }, [scene, fitSize, fitAxis, fitBox, anchor])
 
   return (
     <group rotation={[0, rotationY, 0]} scale={scale}>

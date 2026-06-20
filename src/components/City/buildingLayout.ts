@@ -97,8 +97,9 @@ export function generateBuildings(params: CityLayoutParams): BuildingInstance[] 
 
       const color = BUILDING_COLORS[Math.floor(rand() * BUILDING_COLORS.length)]
       const variant = Math.floor(rand() * BUILDING_VARIANTS)
-      // Muka gedung menghadap jalan: sisi kiri hadap +X, sisi kanan hadap -X.
-      const rotationY = side < 0 ? Math.PI / 2 : -Math.PI / 2
+      // Rotasi 0/180° saja (tidak menukar sumbu X↔Z) supaya lebar gedung tetap
+      // dibatasi footprint dan tidak melebar menutup jalan.
+      const rotationY = side < 0 ? 0 : Math.PI
 
       buildings.push({
         position: [x, height / 2, z + zJitter],

@@ -7,7 +7,7 @@ import * as THREE from 'three'
  * Ball memanggil ini tiap frame saat mode dribble.
  */
 
-export const BALL_RADIUS = 0.3
+export const BALL_RADIUS = 0.15
 /** Jarak bola di depan player (meter). */
 export const DRIBBLE_DISTANCE = 1.0
 /**

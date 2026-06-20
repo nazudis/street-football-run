@@ -118,7 +118,7 @@ export default function Player() {
             fitSize={1.8}
             fitAxis="height"
             anchor="bottom"
-            rotationY={Math.PI}
+            rotationY={0}
           />
         </group>
       </group>
