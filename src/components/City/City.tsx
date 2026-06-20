@@ -68,6 +68,8 @@ export default function City({
                 stretchBox={[w, h, d]}
                 anchor="bottom"
                 rotationY={b.rotationY}
+                castShadow={false}
+                receiveShadow={false}
               />
             </group>
           </group>

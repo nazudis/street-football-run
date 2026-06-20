@@ -1,6 +1,7 @@
-import { Suspense } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Suspense, useRef } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { Physics, RigidBody, CuboidCollider } from '@react-three/rapier'
+import * as THREE from 'three'
 import { COLLISION } from '../physics/collisionGroups'
 import { useGameStore } from '../hooks/useGameStore'
 import '../assets/loadModels'
@@ -11,6 +12,41 @@ import GoalZone from '../components/Goal/GoalZone'
 import Goal from '../components/Goal/Goal'
 import GoalNet from '../components/Goal/GoalNet'
 import CameraRig from '../systems/CameraRig'
+
+/**
+ * SunLight — directional light yang mengikuti player. Shadow frustum kecil
+ * (murah + tajam) tapi tetap menutupi player sepanjang jalan 200m.
+ */
+function SunLight() {
+  const ref = useRef<THREE.DirectionalLight>(null)
+  const playerPosition = useGameStore((s) => s.playerPosition)
+  useFrame(() => {
+    const l = ref.current
+    if (!l) return
+    l.position.set(
+      playerPosition.x + 10,
+      playerPosition.y + 20,
+      playerPosition.z + 5,
+    )
+    l.target.position.copy(playerPosition)
+    l.target.updateMatrixWorld()
+  })
+  return (
+    <directionalLight
+      ref={ref}
+      intensity={1.4}
+      castShadow
+      shadow-mapSize-width={1024}
+      shadow-mapSize-height={1024}
+      shadow-camera-left={-20}
+      shadow-camera-right={20}
+      shadow-camera-top={20}
+      shadow-camera-bottom={-20}
+      shadow-camera-near={0.5}
+      shadow-camera-far={70}
+    />
+  )
+}
 
 /**
  * MainScene — dunia 3D (Fase 2).
@@ -24,6 +60,9 @@ export default function MainScene() {
   return (
     <Canvas
       shadows
+      // Batasi pixel ratio (hindari render 2×/4× piksel di layar retina → FPS).
+      dpr={[1, 1.5]}
+      gl={{ powerPreference: 'high-performance', antialias: true }}
       camera={{ position: [0, 6, -9], fov: 50 }}
       style={{ width: '100%', height: '100%' }}
     >
@@ -32,19 +71,7 @@ export default function MainScene() {
 
       {/* Pencahayaan */}
       <ambientLight intensity={0.5} />
-      <directionalLight
-        position={[10, 20, 5]}
-        intensity={1.4}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-left={-60}
-        shadow-camera-right={60}
-        shadow-camera-top={60}
-        shadow-camera-bottom={-60}
-        shadow-camera-near={0.5}
-        shadow-camera-far={120}
-      />
+      <SunLight />
 
       <Physics gravity={[0, -9.81, 0]}>
        <Suspense fallback={null}>

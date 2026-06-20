@@ -27,6 +27,10 @@ interface GLTFModelProps {
   anchor?: Anchor
   /** Koreksi arah hadap model (radian). */
   rotationY?: number
+  /** Mesh mengecor bayangan? (matikan untuk objek latar demi performa). */
+  castShadow?: boolean
+  /** Mesh menerima bayangan? */
+  receiveShadow?: boolean
 }
 
 export default function GLTFModel({
@@ -37,17 +41,19 @@ export default function GLTFModel({
   stretchBox,
   anchor = 'bottom',
   rotationY = 0,
+  castShadow = true,
+  receiveShadow = true,
 }: GLTFModelProps) {
   const { scene } = useGLTF(url)
 
   const { object, scale } = useMemo(() => {
     const clone = scene.clone(true)
 
-    // Aktifkan bayangan pada semua mesh.
+    // Atur bayangan pada semua mesh.
     clone.traverse((o) => {
       if ((o as THREE.Mesh).isMesh) {
-        o.castShadow = true
-        o.receiveShadow = true
+        o.castShadow = castShadow
+        o.receiveShadow = receiveShadow
       }
     })
 
@@ -95,7 +101,7 @@ export default function GLTFModel({
     clone.position.y -= anchor === 'bottom' ? box.min.y : center.y
 
     return { object: clone, scale: s }
-  }, [scene, fitSize, fitAxis, fitBox, stretchBox, anchor])
+  }, [scene, fitSize, fitAxis, fitBox, stretchBox, anchor, castShadow, receiveShadow])
 
   return (
     <group rotation={[0, rotationY, 0]} scale={scale}>
