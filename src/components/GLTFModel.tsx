@@ -22,6 +22,8 @@ interface GLTFModelProps {
   fitAxis?: FitAxis
   /** Mode "contain": skala uniform agar model muat di dalam kotak [x,y,z]. */
   fitBox?: [number, number, number]
+  /** Mode "stretch": skala non-uniform agar model mengisi kotak [x,y,z] persis. */
+  stretchBox?: [number, number, number]
   anchor?: Anchor
   /** Koreksi arah hadap model (radian). */
   rotationY?: number
@@ -32,6 +34,7 @@ export default function GLTFModel({
   fitSize,
   fitAxis = 'height',
   fitBox,
+  stretchBox,
   anchor = 'bottom',
   rotationY = 0,
 }: GLTFModelProps) {
@@ -55,14 +58,24 @@ export default function GLTFModel({
     box.getSize(size)
     box.getCenter(center)
 
-    let s = 1
-    if (fitBox) {
+    const dimScale = (target: number, dim: number) =>
+      dim > 1e-6 ? target / dim : 1
+    let s: [number, number, number] = [1, 1, 1]
+    if (stretchBox) {
+      // Isi kotak persis (non-uniform) → gedung penuh tinggi, lebar terkurung.
+      s = [
+        dimScale(stretchBox[0], size.x),
+        dimScale(stretchBox[1], size.y),
+        dimScale(stretchBox[2], size.z),
+      ]
+    } else if (fitBox) {
       // Contain: skala uniform terbesar yang tetap muat di dalam kotak.
-      const sx = size.x > 1e-6 ? fitBox[0] / size.x : Infinity
-      const sy = size.y > 1e-6 ? fitBox[1] / size.y : Infinity
-      const sz = size.z > 1e-6 ? fitBox[2] / size.z : Infinity
-      s = Math.min(sx, sy, sz)
-      if (!Number.isFinite(s)) s = 1
+      const u = Math.min(
+        dimScale(fitBox[0], size.x),
+        dimScale(fitBox[1], size.y),
+        dimScale(fitBox[2], size.z),
+      )
+      s = [u, u, u]
     } else if (fitSize) {
       const dim =
         fitAxis === 'height'
@@ -72,7 +85,8 @@ export default function GLTFModel({
             : fitAxis === 'depth'
               ? size.z
               : Math.max(size.x, size.y, size.z)
-      if (dim > 1e-6) s = fitSize / dim
+      const u = fitSize > 0 ? dimScale(fitSize, dim) : 1
+      s = [u, u, u]
     }
 
     // Recenter di XZ; anchor menentukan sumbu Y.
@@ -81,7 +95,7 @@ export default function GLTFModel({
     clone.position.y -= anchor === 'bottom' ? box.min.y : center.y
 
     return { object: clone, scale: s }
-  }, [scene, fitSize, fitAxis, fitBox, anchor])
+  }, [scene, fitSize, fitAxis, fitBox, stretchBox, anchor])
 
   return (
     <group rotation={[0, rotationY, 0]} scale={scale}>

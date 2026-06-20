@@ -65,7 +65,7 @@ export default function City({
             <group position={[x, 0, z]}>
               <GLTFModel
                 url={MODELS.buildings[b.variant]}
-                fitBox={[w, h, d]}
+                stretchBox={[w, h, d]}
                 anchor="bottom"
                 rotationY={b.rotationY}
               />

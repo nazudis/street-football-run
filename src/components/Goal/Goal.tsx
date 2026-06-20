@@ -12,7 +12,7 @@ import { MODELS } from '../../assets/loadModels'
  * (mulut harus terbuka ke -Z, arah datangnya player).
  */
 const POST = 0.12 // setengah tebal tiang/mistar
-const GOAL_FACING = 0 // radian; ubah ke Math.PI bila gawang terbalik
+const GOAL_FACING = Math.PI // radian; mulut gawang menghadap -Z (arah player)
 
 export default function Goal() {
   const halfW = GOAL_WIDTH / 2
