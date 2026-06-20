@@ -123,8 +123,8 @@ export default function Ball() {
       <BallCollider
         args={[BALL_RADIUS]}
         collisionGroups={COLLISION.ball}
-        restitution={0.45}
-        friction={0.6}
+        restitution={0.25}
+        friction={0.7}
       />
       <GLTFModel
         url={MODELS.ball}

@@ -9,12 +9,13 @@ import * as THREE from 'three'
 
 export const BALL_RADIUS = 0.15
 /** Jarak bola di depan player (meter). */
-export const DRIBBLE_DISTANCE = 1.0
+export const DRIBBLE_DISTANCE = 1.3
 /**
  * Faktor smoothing posisi (frame-rate independent: alpha = 1 - e^(-k·dt)).
- * Makin kecil makin "tertinggal" saat player belok (lag natural).
+ * Makin kecil makin "tertinggal" saat player belok (lag natural). Disetel
+ * cukup ketat agar bola tetap di depan saat lari (tidak tersusul player).
  */
-export const DRIBBLE_SMOOTH = 9
+export const DRIBBLE_SMOOTH = 16
 
 /**
  * Hitung posisi target bola = posisi player + arah hadap × jarak dribble,

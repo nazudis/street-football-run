@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, type MutableRefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
+import { SkeletonUtils } from 'three-stdlib'
 import * as THREE from 'three'
 import { MODELS } from '../../assets/loadModels'
 import { useGameStore } from '../../hooks/useGameStore'
@@ -37,13 +38,17 @@ export default function PlayerModel({
 }: PlayerModelProps) {
   const group = useRef<THREE.Group>(null)
   const { scene, animations } = useGLTF(MODELS.playerAnimated)
-  const { actions } = useAnimations(animations, group)
+  // Clone skinned scene (SkeletonUtils mempertahankan skinning) supaya tiap
+  // mount punya instance sendiri — scene cache tidak dipindah & tidak hilang
+  // saat remount (restart via runId).
+  const model = useMemo(() => SkeletonUtils.clone(scene), [scene])
+  const { actions } = useAnimations(animations, model)
   const isShot = useGameStore((s) => s.isShot)
 
   // Fit: ukur bbox sekali → skala ke tinggi target & offset anchor (kaki di 0).
   const fit = useMemo(() => {
-    scene.updateMatrixWorld(true)
-    const box = new THREE.Box3().setFromObject(scene)
+    model.updateMatrixWorld(true)
+    const box = new THREE.Box3().setFromObject(model)
     const size = new THREE.Vector3()
     const center = new THREE.Vector3()
     box.getSize(size)
@@ -53,17 +58,17 @@ export default function PlayerModel({
       scale,
       offset: [-center.x, -box.min.y, -center.z] as [number, number, number],
     }
-  }, [scene, height])
+  }, [model, height])
 
   // Bayangan.
   useEffect(() => {
-    scene.traverse((o) => {
+    model.traverse((o) => {
       if ((o as THREE.Mesh).isMesh) {
         o.castShadow = true
         o.receiveShadow = true
       }
     })
-  }, [scene])
+  }, [model])
 
   // Petakan nama clip Mixamo → peran.
   const clip = useMemo(() => {
@@ -128,7 +133,7 @@ export default function PlayerModel({
   return (
     <group ref={group} rotation={[0, rotationY, 0]} scale={fit.scale}>
       <group position={fit.offset}>
-        <primitive object={scene} />
+        <primitive object={model} />
       </group>
     </group>
   )

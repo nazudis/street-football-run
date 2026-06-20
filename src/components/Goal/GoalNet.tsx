@@ -12,6 +12,7 @@ import { playOneShot } from '../../systems/AudioSystem'
  * (bola juga ber-CCD).
  */
 const NET_DEPTH = 1.2 // kedalaman jaring & sensor (sumbu Z, di belakang garis)
+const WALL = 0.05 // setengah tebal dinding net
 
 export default function GoalNet() {
   const setIsGoal = useGameStore((s) => s.setIsGoal)
@@ -36,6 +37,32 @@ export default function GoalNet() {
               playOneShot('goal')
             }
           }}
+        />
+      </RigidBody>
+
+      {/* Kandang net SOLID (belakang + 2 sisi + atap, depan terbuka) supaya
+          bola nyangkut, tidak tembus. Grup WORLD → bola membentur. */}
+      <RigidBody type="fixed" colliders={false}>
+        {/* Belakang */}
+        <CuboidCollider
+          args={[halfW, GOAL_HEIGHT / 2, WALL]}
+          position={[0, GOAL_HEIGHT / 2, NET_DEPTH]}
+          collisionGroups={COLLISION.world}
+        />
+        {/* Dua sisi */}
+        {([-1, 1] as const).map((side) => (
+          <CuboidCollider
+            key={side}
+            args={[WALL, GOAL_HEIGHT / 2, NET_DEPTH / 2]}
+            position={[side * halfW, GOAL_HEIGHT / 2, NET_DEPTH / 2]}
+            collisionGroups={COLLISION.world}
+          />
+        ))}
+        {/* Atap */}
+        <CuboidCollider
+          args={[halfW, WALL, NET_DEPTH / 2]}
+          position={[0, GOAL_HEIGHT, NET_DEPTH / 2]}
+          collisionGroups={COLLISION.world}
         />
       </RigidBody>
 
