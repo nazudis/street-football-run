@@ -1,5 +1,6 @@
 import MainScene from './scenes/MainScene'
 import HUD from './ui/HUD'
+import LoadingScreen from './ui/LoadingScreen'
 import ShootPrompt from './ui/ShootPrompt'
 import WinScreen from './ui/WinScreen'
 import { useShootControls } from './systems/ShootSystem'
@@ -15,6 +16,7 @@ export default function App() {
       <HUD />
       <ShootPrompt />
       <WinScreen />
+      <LoadingScreen />
     </>
   )
 }
