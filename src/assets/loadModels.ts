@@ -6,6 +6,7 @@ import { useGLTF } from '@react-three/drei'
  */
 export const MODELS = {
   player: '/models/player.glb',
+  playerAnimated: '/models/player_animated.glb',
   ball: '/models/ball.glb',
   goal: '/models/goal.glb',
   buildings: [
@@ -19,6 +20,7 @@ export const MODELS = {
 /** Preload semua model agar siap saat komponen render (panggil sekali di app). */
 export function preloadModels(): void {
   useGLTF.preload(MODELS.player)
+  useGLTF.preload(MODELS.playerAnimated)
   useGLTF.preload(MODELS.ball)
   useGLTF.preload(MODELS.goal)
   MODELS.buildings.forEach((url) => useGLTF.preload(url))

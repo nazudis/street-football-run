@@ -5,8 +5,7 @@ import * as THREE from 'three'
 import { useKeyboardControls } from '../../hooks/useKeyboardControls'
 import { useGameStore } from '../../hooks/useGameStore'
 import { COLLISION } from '../../physics/collisionGroups'
-import GLTFModel from '../GLTFModel'
-import { MODELS } from '../../assets/loadModels'
+import PlayerModel, { type Locomotion } from './PlayerModel'
 
 const WALK_SPEED = 4
 const RUN_SPEED = 8
@@ -38,6 +37,9 @@ export default function Player() {
   const moveDir = useRef(new THREE.Vector3())
   const up = useRef(new THREE.Vector3(0, 1, 0))
 
+  // State lokomosi untuk animasi (di-baca PlayerModel, non-reaktif).
+  const locomotion = useRef<Locomotion>('Idle')
+
   useFrame((_, delta) => {
     if (!body.current) return
 
@@ -45,6 +47,7 @@ export default function Player() {
     if (useGameStore.getState().gameState === 'win') {
       const v = body.current.linvel()
       body.current.setLinvel({ x: 0, y: v.y, z: 0 }, true)
+      locomotion.current = 'Idle'
       return
     }
 
@@ -84,9 +87,12 @@ export default function Player() {
         diff = Math.atan2(Math.sin(diff), Math.cos(diff))
         visual.current.rotation.y = current + diff * Math.min(1, TURN_LERP * delta)
       }
+
+      locomotion.current = sprint ? 'Run' : 'Walk'
     } else {
       // Tidak ada input → rem horizontal, biarkan Y (gravitasi).
       body.current.setLinvel({ x: 0, y: linvel.y, z: 0 }, true)
+      locomotion.current = 'Idle'
     }
 
     // Publikasikan posisi player ke store (live, non-reaktif).
@@ -111,15 +117,9 @@ export default function Player() {
     >
       <CapsuleCollider args={[HALF_HEIGHT, RADIUS]} collisionGroups={COLLISION.player} />
       <group ref={visual}>
-        {/* Model karakter; kaki di dasar kapsul (-(halfHeight+radius)). */}
+        {/* Model karakter beranimasi; kaki di dasar kapsul. */}
         <group position={[0, -(HALF_HEIGHT + RADIUS), 0]}>
-          <GLTFModel
-            url={MODELS.player}
-            fitSize={1.8}
-            fitAxis="height"
-            anchor="bottom"
-            rotationY={0}
-          />
+          <PlayerModel locomotion={locomotion} height={1.8} rotationY={0} />
         </group>
       </group>
     </RigidBody>
