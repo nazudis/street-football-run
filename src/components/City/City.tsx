@@ -1,12 +1,14 @@
 import { useMemo } from 'react'
+import { RigidBody, CuboidCollider } from '@react-three/rapier'
 import { generateBuildings, type CityLayoutParams } from './buildingLayout'
+import { COLLISION } from '../../physics/collisionGroups'
+import GLTFModel from '../GLTFModel'
+import { MODELS } from '../../assets/loadModels'
 
 /**
- * City — lingkungan kota: jalan lurus (aspal) + gedung placeholder (box)
- * berjajar kiri-kanan. Konvensi: arah lari = +Z.
- *
- * Placeholder box dipakai sampai Fase 7 (asset GLB). Logika penempatan ada
- * di `buildingLayout.ts` supaya gampang diganti model nanti.
+ * City — lingkungan kota: jalan aspal (+Z) + gedung model GLB berjajar
+ * kiri-kanan (varian deterministik). Collider gedung = cuboid primitif (WORLD),
+ * bukan trimesh model. Logika penempatan ada di `buildingLayout.ts`.
  */
 export interface CityProps extends Partial<CityLayoutParams> {}
 
@@ -34,7 +36,7 @@ export default function City({
         <meshStandardMaterial color="#2b2b30" />
       </mesh>
 
-      {/* Trotoar kiri-kanan (sedikit lebih terang dari aspal). */}
+      {/* Trotoar kiri-kanan. */}
       {([-1, 1] as const).map((side) => (
         <mesh
           key={`sidewalk-${side}`}
@@ -47,13 +49,31 @@ export default function City({
         </mesh>
       ))}
 
-      {/* Gedung placeholder. */}
-      {buildings.map((b, i) => (
-        <mesh key={i} position={b.position} castShadow receiveShadow>
-          <boxGeometry args={b.size} />
-          <meshStandardMaterial color={b.color} />
-        </mesh>
-      ))}
+      {/* Gedung: model GLB + collider cuboid primitif. */}
+      {buildings.map((b, i) => {
+        const [x, , z] = b.position
+        const [w, h, d] = b.size
+        return (
+          <group key={i}>
+            <RigidBody type="fixed" colliders={false} position={[x, 0, z]}>
+              <CuboidCollider
+                args={[w / 2, h / 2, d / 2]}
+                position={[0, h / 2, 0]}
+                collisionGroups={COLLISION.world}
+              />
+            </RigidBody>
+            <group position={[x, 0, z]}>
+              <GLTFModel
+                url={MODELS.buildings[b.variant]}
+                fitSize={h}
+                fitAxis="height"
+                anchor="bottom"
+                rotationY={b.rotationY}
+              />
+            </group>
+          </group>
+        )
+      })}
     </group>
   )
 }

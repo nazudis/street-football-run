@@ -26,9 +26,16 @@ export interface BuildingInstance {
   position: [number, number, number]
   /** Dimensi box [lebarX, tinggiY, tebalZ]. */
   size: [number, number, number]
-  /** Warna fasad. */
+  /** Warna fasad (placeholder box). */
   color: string
+  /** Index varian model gedung (deterministik). */
+  variant: number
+  /** Rotasi Y agar muka gedung menghadap jalan (radian). */
+  rotationY: number
 }
+
+/** Jumlah varian model gedung tersedia (lihat MODELS.buildings). */
+export const BUILDING_VARIANTS = 4
 
 /** PRNG deterministik (mulberry32) — sama seed, sama hasil. */
 function mulberry32(seed: number): () => number {
@@ -89,11 +96,16 @@ export function generateBuildings(params: CityLayoutParams): BuildingInstance[] 
       const zJitter = lerp(-buildingSpacing * 0.15, buildingSpacing * 0.15, rand())
 
       const color = BUILDING_COLORS[Math.floor(rand() * BUILDING_COLORS.length)]
+      const variant = Math.floor(rand() * BUILDING_VARIANTS)
+      // Muka gedung menghadap jalan: sisi kiri hadap +X, sisi kanan hadap -X.
+      const rotationY = side < 0 ? Math.PI / 2 : -Math.PI / 2
 
       buildings.push({
         position: [x, height / 2, z + zJitter],
         size: [width, height, depth],
         color,
+        variant,
+        rotationY,
       })
     }
   }

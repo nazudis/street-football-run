@@ -158,7 +158,7 @@ Spesifikasi export: `.glb` binary, Y-up, skala meter, low poly, texture baked. D
 | 4 Goal Zone | ✅ | Sensor cuboid di +Z (`goalConfig.ts`), set `inGoalZone`/`canShoot` via userData player. Prompt "Press Space to Shoot" = overlay DOM di `src/ui/ShootPrompt.tsx`. |
 | 5 Shooting | ✅ | Space (saat `canShoot`) → `shoot()` set `isShot`, Ball switch ke dynamic lalu `applyImpulse` ke arah gawang (lob ringan). Rangka gawang placeholder (tiang+mistar) sebagai target. |
 | 6 Goal Detection | ✅ | **MVP playable.** Sensor gol di mulut gawang → `gameState='win'`. WinScreen "GOAL!" + Restart. Reset via `runId` (remount Player/Ball ke spawn). Player freeze saat win. |
-| 7 Assets | ⬜ | |
+| 7 Assets | ✅ | Model GLB (player/ball/goal/4 gedung) menggantikan placeholder via `GLTFModel` (auto-fit bbox). Collider tetap primitif. Aset Meshy dioptimasi (480MB→39MB). Mentah di `assets-raw/` (gitignore). |
 | 8 Animation | ⬜ | |
 | 9 UI | ⬜ | |
 | 10 Polish | ⬜ | |
@@ -169,6 +169,7 @@ Spesifikasi export: `.glb` binary, Y-up, skala meter, low poly, texture baked. D
 
 > Catat keputusan teknis/konvensi signifikan beserta tanggal. Terbaru di atas.
 
+- 2026-06-20 — Fase 7 selesai. (a) **Optimasi aset wajib**: export mentah Meshy 480MB (bola 320k verts + 4× tekstur 4K) → dioptimasi `@gltf-transform/cli optimize --compress meshopt --texture-compress webp --texture-size 1024` jadi ~39MB total. Mentah disimpan lokal di `assets-raw/` (gitignore) — `player.glb` mentah dipakai lagi untuk Mixamo (Fase 8). (b) `src/components/GLTFModel.tsx`: pembungkus auto-fit (ukur Box3 → skala ke `fitSize`/`fitAxis`, anchor `bottom`/`center`) supaya skala/origin Meshy yang acak otomatis pas dengan collider primitif. (c) Loader `src/assets/loadModels.ts` (`useGLTF.preload`). (d) drei `useGLTF` otomatis pasang Meshopt+Draco decoder. (e) Konstanta koreksi arah hadap: Player `rotationY={Math.PI}`, Goal `GOAL_FACING`. Gedung: varian deterministik + collider cuboid WORLD. Scene dibungkus `<Suspense>`.
 - 2026-06-19 — Fase 6 selesai → **MVP playable**. Pola reset: store punya `runId` yang naik di `reset()`; MainScene render `<Player key=runId>` & `<Ball key=runId>` → remount fresh ke spawn (semua ref & posisi balik otomatis, lebih bersih daripada teleport manual). Sensor gol (`GoalNet`) filter `userData.type==='ball'`, set `gameState='win'`. Player freeze saat `win` (baca `getState().gameState` di useFrame). WinScreen & ShootPrompt = overlay DOM; ShootPrompt disembunyikan saat win.
 - 2026-06-19 — Fase 5 selesai. Tendang: Space → `shoot()` (guard `canShoot && !isShot`) set `isShot`. Ball menunggu Rapier benar-benar memindah body ke `dynamic` (`bodyType()===0`) lewat fase `idle→pending→done` baru `applyImpulse`. Impulse = kecepatan target × `mass()` (mass-independent, predictable). Arah tembak ke mulut gawang (x=0, z=GOAL_LINE_Z) + lob `SHOOT_VSPEED`. Bola: `restitution 0.45`, `friction 0.6`. Rangka gawang placeholder collider grup WORLD.
 - 2026-06-19 — Fase 4 selesai. Posisi gawang & zona dipusatkan di `src/components/Goal/goalConfig.ts` (GOAL_LINE_Z=196, GOAL_ZONE centerZ=184) supaya konsisten dengan Fase 6. Sensor pakai `onIntersectionEnter/Exit` + filter `other.rigidBody.userData.type==='player'`. Goal zone juga set `canShoot` (dipakai Fase 5).

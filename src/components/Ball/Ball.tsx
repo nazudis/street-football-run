@@ -4,6 +4,8 @@ import { RigidBody, BallCollider, type RapierRigidBody } from '@react-three/rapi
 import * as THREE from 'three'
 import { useGameStore } from '../../hooks/useGameStore'
 import { COLLISION } from '../../physics/collisionGroups'
+import GLTFModel from '../GLTFModel'
+import { MODELS } from '../../assets/loadModels'
 import {
   BALL_RADIUS,
   DRIBBLE_SMOOTH,
@@ -112,15 +114,12 @@ export default function Ball() {
         restitution={0.45}
         friction={0.6}
       />
-      <mesh castShadow receiveShadow>
-        <sphereGeometry args={[BALL_RADIUS, 24, 24]} />
-        <meshStandardMaterial color="#f5f5f5" roughness={0.5} />
-      </mesh>
-      {/* Tanda agar putaran menggelinding terlihat. */}
-      <mesh castShadow>
-        <sphereGeometry args={[BALL_RADIUS * 1.01, 8, 6]} />
-        <meshStandardMaterial color="#222" wireframe />
-      </mesh>
+      <GLTFModel
+        url={MODELS.ball}
+        fitSize={BALL_RADIUS * 2}
+        fitAxis="max"
+        anchor="center"
+      />
     </RigidBody>
   )
 }

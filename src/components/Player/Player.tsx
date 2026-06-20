@@ -5,6 +5,8 @@ import * as THREE from 'three'
 import { useKeyboardControls } from '../../hooks/useKeyboardControls'
 import { useGameStore } from '../../hooks/useGameStore'
 import { COLLISION } from '../../physics/collisionGroups'
+import GLTFModel from '../GLTFModel'
+import { MODELS } from '../../assets/loadModels'
 
 const WALK_SPEED = 4
 const RUN_SPEED = 8
@@ -109,16 +111,16 @@ export default function Player() {
     >
       <CapsuleCollider args={[HALF_HEIGHT, RADIUS]} collisionGroups={COLLISION.player} />
       <group ref={visual}>
-        {/* Badan capsule placeholder. */}
-        <mesh castShadow>
-          <capsuleGeometry args={[RADIUS, HALF_HEIGHT * 2, 8, 16]} />
-          <meshStandardMaterial color="#e84d3d" />
-        </mesh>
-        {/* Penanda arah hadap (hidung) di sisi +Z lokal. */}
-        <mesh position={[0, 0.2, RADIUS + 0.05]} castShadow>
-          <boxGeometry args={[0.18, 0.18, 0.25]} />
-          <meshStandardMaterial color="#f4d03f" />
-        </mesh>
+        {/* Model karakter; kaki di dasar kapsul (-(halfHeight+radius)). */}
+        <group position={[0, -(HALF_HEIGHT + RADIUS), 0]}>
+          <GLTFModel
+            url={MODELS.player}
+            fitSize={1.8}
+            fitAxis="height"
+            anchor="bottom"
+            rotationY={Math.PI}
+          />
+        </group>
       </group>
     </RigidBody>
   )

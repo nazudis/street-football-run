@@ -39,3 +39,6 @@ dist-ssr
 
 # Misc
 *.tsbuildinfo
+
+# Raw/unoptimized 3D assets (huge Meshy exports — kept locally, not committed)
+assets-raw/

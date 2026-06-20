@@ -1,7 +1,9 @@
+import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Physics, RigidBody, CuboidCollider } from '@react-three/rapier'
 import { COLLISION } from '../physics/collisionGroups'
 import { useGameStore } from '../hooks/useGameStore'
+import '../assets/loadModels'
 import City from '../components/City/City'
 import Player from '../components/Player/Player'
 import Ball from '../components/Ball/Ball'
@@ -45,6 +47,7 @@ export default function MainScene() {
       />
 
       <Physics gravity={[0, -9.81, 0]}>
+       <Suspense fallback={null}>
         {/* Ground: RigidBody fixed + cuboid collider tipis. */}
         <RigidBody type="fixed" colliders={false}>
           <CuboidCollider
@@ -74,6 +77,7 @@ export default function MainScene() {
         <Player key={`player-${runId}`} />
         <Ball key={`ball-${runId}`} />
         <CameraRig />
+       </Suspense>
       </Physics>
     </Canvas>
   )
