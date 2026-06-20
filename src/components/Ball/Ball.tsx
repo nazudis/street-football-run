@@ -13,6 +13,7 @@ import {
   applyRolling,
 } from '../../systems/DribbleSystem'
 import { computeShotVelocity, KICK_CONTACT_DELAY } from '../../systems/ShootSystem'
+import { playOneShot } from '../../systems/AudioSystem'
 
 // Rapier RigidBodyType.Dynamic === 0.
 const DYNAMIC = 0
@@ -83,6 +84,7 @@ export default function Ball() {
           true,
         )
         impulseApplied.current = true
+        playOneShot('kick')
       }
       return // mode shot → fisika Rapier yang pegang
     }

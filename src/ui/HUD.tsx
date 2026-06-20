@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { useGameStore } from '../hooks/useGameStore'
+import { isMuted, setMuted } from '../systems/AudioSystem'
 import DistanceMeter from './DistanceMeter'
 
 /**
@@ -25,6 +27,19 @@ export default function HUD() {
   const inGoalZone = useGameStore((s) => s.inGoalZone)
   const gameState = useGameStore((s) => s.gameState)
   const reset = useGameStore((s) => s.reset)
+  const [muted, setMutedState] = useState(isMuted())
+
+  const buttonStyle: React.CSSProperties = {
+    pointerEvents: 'auto',
+    padding: '8px 16px',
+    borderRadius: 10,
+    border: '1px solid rgba(255,255,255,0.18)',
+    cursor: 'pointer',
+    color: '#fff',
+    background: 'rgba(0,0,0,0.5)',
+    backdropFilter: 'blur(4px)',
+    font: '600 clamp(13px, 2.6vw, 16px)/1 system-ui, sans-serif',
+  }
 
   return (
     <div
@@ -61,23 +76,23 @@ export default function HUD() {
         )}
       </div>
 
-      {/* Kanan: tombol restart (selalu tersedia). */}
-      <button
-        onClick={reset}
-        style={{
-          pointerEvents: 'auto',
-          padding: '8px 16px',
-          borderRadius: 10,
-          border: '1px solid rgba(255,255,255,0.18)',
-          cursor: 'pointer',
-          color: '#fff',
-          background: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(4px)',
-          font: '600 clamp(13px, 2.6vw, 16px)/1 system-ui, sans-serif',
-        }}
-      >
-        ↺ Restart
-      </button>
+      {/* Kanan: mute + restart. */}
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button
+          aria-label={muted ? 'Unmute' : 'Mute'}
+          onClick={() => {
+            const next = !muted
+            setMuted(next)
+            setMutedState(next)
+          }}
+          style={buttonStyle}
+        >
+          {muted ? '🔇' : '🔊'}
+        </button>
+        <button onClick={reset} style={buttonStyle}>
+          ↺ Restart
+        </button>
+      </div>
 
       <style>{`
         @keyframes hud-pulse {

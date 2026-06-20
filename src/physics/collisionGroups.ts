@@ -27,4 +27,9 @@ export const COLLISION = {
   ball: interactionGroups(GROUP.BALL, [GROUP.WORLD, GROUP.GOAL]),
   /** Sensor goal: mendeteksi player & bola, tanpa respon fisik. */
   goal: interactionGroups(GROUP.GOAL, [GROUP.PLAYER, GROUP.BALL]),
+  /**
+   * Ray kamera: hanya mengenai WORLD (gedung/gawang/ground), bukan player/bola.
+   * Membership PLAYER agar cocok dengan filter WORLD (`world` melihat PLAYER).
+   */
+  cameraRay: interactionGroups(GROUP.PLAYER, [GROUP.WORLD]),
 } as const

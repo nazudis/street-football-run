@@ -2,6 +2,7 @@ import { RigidBody, CuboidCollider } from '@react-three/rapier'
 import { useGameStore } from '../../hooks/useGameStore'
 import { COLLISION } from '../../physics/collisionGroups'
 import { GOAL_LINE_Z, GOAL_WIDTH, GOAL_HEIGHT } from './goalConfig'
+import { playOneShot } from '../../systems/AudioSystem'
 
 /**
  * GoalNet — sensor pendeteksi gol di mulut gawang + jaring visual sederhana.
@@ -32,6 +33,7 @@ export default function GoalNet() {
             if (data?.type === 'ball' && useGameStore.getState().gameState !== 'win') {
               setIsGoal(true)
               setGameState('win')
+              playOneShot('goal')
             }
           }}
         />

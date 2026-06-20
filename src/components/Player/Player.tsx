@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import { useKeyboardControls } from '../../hooks/useKeyboardControls'
 import { useGameStore } from '../../hooks/useGameStore'
 import { COLLISION } from '../../physics/collisionGroups'
+import { setFootstep } from '../../systems/AudioSystem'
 import PlayerModel, { type Locomotion } from './PlayerModel'
 
 const WALK_SPEED = 4
@@ -48,6 +49,7 @@ export default function Player() {
       const v = body.current.linvel()
       body.current.setLinvel({ x: 0, y: v.y, z: 0 }, true)
       locomotion.current = 'Idle'
+      setFootstep(false)
       return
     }
 
@@ -89,10 +91,12 @@ export default function Player() {
       }
 
       locomotion.current = sprint ? 'Run' : 'Walk'
+      setFootstep(true, sprint ? 1.5 : 1)
     } else {
       // Tidak ada input → rem horizontal, biarkan Y (gravitasi).
       body.current.setLinvel({ x: 0, y: linvel.y, z: 0 }, true)
       locomotion.current = 'Idle'
+      setFootstep(false)
     }
 
     // Publikasikan posisi player ke store (live, non-reaktif).
